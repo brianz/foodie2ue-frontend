@@ -1,16 +1,18 @@
 <script lang="ts">
-	import type { PopupSettings } from '@skeletonlabs/skeleton';
+	import { TabGroup, Tab, TabAnchor } from '@skeletonlabs/skeleton';
+	
+	let tabSet: number = 0;
 
+	type Category = {
+		id: number;
+		name: string;
+		menuItems: MenuItem[];
+	}
 	type AddOn = {
 		id: number;
 		name: string;
 		price: string;
 		description: string;
-	};
-
-	type Size = {
-		name: string;
-		price: string;
 	};
 
 	type MenuItem = {
@@ -19,15 +21,14 @@
 		id: number;
 		name: string;
 		slug: string;
-		price?: string;
+		price: string;
 		thumbnail: string;
 		addons: AddOn[];
-		sizes?: Size[];
-		popupSettings?: PopupSettings;
 		updated: string;
 	};
 
-	const menuItems: MenuItem[] = [
+
+	const burgerMenuItems: MenuItem[] = [
 		{
 			created: '2023-07-07T19:17:10.278101',
 			description: 'Delicious hamburger with one all-American beef patty',
@@ -189,7 +190,10 @@
 				}
 			],
 			updated: '2023-07-07T19:17:10.328264'
-		},
+		}
+	]
+
+	const sandwichMenuItems: MenuItem[] = [
 		{
 			created: '2023-07-07T19:17:10.348026',
 			description: 'A grilled cheese sandwich with cheddar cheese',
@@ -207,83 +211,241 @@
 				}
 			],
 			updated: '2023-07-07T19:17:10.348026'
+		}
+	]
+
+	const fryMenuItems: MenuItem[] = [
+		{
+			addons: [],
+			created: '2023-07-07T19:17:10.369814',
+			description: 'Yummy freedom/french fries',
+			id: 5,
+			name: 'Small - French fries',
+			slug: 'small-french-fries',
+			thumbnail: 'https://placehold.co/600x400',
+			updated: '2023-07-07T19:17:10.369814',
+			price: '0.99'
 		},
 		{
 			addons: [],
 			created: '2023-07-07T19:17:10.369814',
 			description: 'Yummy freedom/french fries',
 			id: 5,
-			name: 'French fries',
-			slug: 'french-fries',
+			name: 'Medium - French fries',
+			slug: 'medium-french-fries',
 			thumbnail: 'https://placehold.co/600x400',
-			sizes: [
-				{ name: 'small', price: '1.99' },
-				{ name: 'medium', price: '2.99' },
-				{ name: 'large', price: '4.99' }
-			],
-			popupSettings: {
-				event: 'focus-click',
-				target: 'frenchFrySizePopup',
-				placement: 'bottom',
-				closeQuery: '.listbox-item'
-			},
-			updated: '2023-07-07T19:17:10.369814'
+			updated: '2023-07-07T19:17:10.369814',
+			price: '1.29'
+		},
+		{
+			addons: [],
+			created: '2023-07-07T19:17:10.369814',
+			description: 'Yummy freedom/french fries',
+			id: 5,
+			name: 'Large - French fries',
+			slug: 'large-french-fries',
+			thumbnail: 'https://placehold.co/600x400',
+			updated: '2023-07-07T19:17:10.369814',
+			price: '1.49'
 		}
-	];
+		
+	]
+
+	const categories: Category[] = [
+		{
+			id: 1,
+			name: 'Burgers',
+			menuItems: burgerMenuItems
+		},
+		{
+			id: 2,
+			name: 'Sandwich',
+			menuItems: sandwichMenuItems
+		},
+		{
+			id: 2,
+			name: 'Fries',
+			menuItems: fryMenuItems
+		}
+	]
 </script>
 
-<div class="flex flex-col place-items-center">
-	{#each menuItems as item}
-		<div class="card variant-glass-primary w-96 mb-4 first:mt-4">
-			<header class="card-header text-2xl font-bold">{item.name}</header>
-			<section class="p-4 text-center">
-				<img src={item.thumbnail} alt={item.name} />
-				{item.description}
-			</section>
-			<footer class="card-footer justify-right">
-				{#if item.sizes}
-					{#each item.sizes as size}
-						<button type="button" class="btn variant-filled">
-							<span
-								><svg
-									xmlns="http://www.w3.org/2000/svg"
-									viewBox="0 0 24 24"
-									fill="currentColor"
-									class="w-6 h-6"
-								>
-									<path
-										fill-rule="evenodd"
-										d="M7.5 6v.75H5.513c-.96 0-1.764.724-1.865 1.679l-1.263 12A1.875 1.875 0 004.25 22.5h15.5a1.875 1.875 0 001.865-2.071l-1.263-12a1.875 1.875 0 00-1.865-1.679H16.5V6a4.5 4.5 0 10-9 0zM12 3a3 3 0 00-3 3v.75h6V6a3 3 0 00-3-3zm-3 8.25a3 3 0 106 0v-.75a.75.75 0 011.5 0v.75a4.5 4.5 0 11-9 0v-.75a.75.75 0 011.5 0v.75z"
-										clip-rule="evenodd"
-									/>
-								</svg>
-							</span>
-							{size.name} - ${size.price}
-						</button>
+
+<TabGroup>
+	<Tab bind:group={tabSet} name="burgers" value={0}>
+		<svelte:fragment slot="lead">burgers</svelte:fragment>
+	</Tab>
+	<Tab bind:group={tabSet} name="sandwiches" value={1}>sandwiches</Tab>
+	<Tab bind:group={tabSet} name="fries" value={2}>fries</Tab>
+	<!-- Tab Panels --->
+	<svelte:fragment slot="panel">
+		{#if tabSet === 0}
+			<!-- Burger Menu Items -->
+				<div class="flex flex-col place-items-center">
+					{#each burgerMenuItems as item}
+						<div class="card variant-glass-primary w-96 mb-4 first:mt-4">
+							<header class="card-header text-2xl font-bold">{item.name}</header>
+							<section class="p-4 text-center">
+								<img src={item.thumbnail} alt={item.name} />
+								{item.description}
+							</section>
+							<footer class="card-footer justify-right">
+								{#if item.sizes}
+									{#each item.sizes as size}
+										<button type="button" class="btn variant-filled">
+											<span
+												><svg
+													xmlns="http://www.w3.org/2000/svg"
+													viewBox="0 0 24 24"
+													fill="currentColor"
+													class="w-6 h-6"
+												>
+													<path
+														fill-rule="evenodd"
+														d="M7.5 6v.75H5.513c-.96 0-1.764.724-1.865 1.679l-1.263 12A1.875 1.875 0 004.25 22.5h15.5a1.875 1.875 0 001.865-2.071l-1.263-12a1.875 1.875 0 00-1.865-1.679H16.5V6a4.5 4.5 0 10-9 0zM12 3a3 3 0 00-3 3v.75h6V6a3 3 0 00-3-3zm-3 8.25a3 3 0 106 0v-.75a.75.75 0 011.5 0v.75a4.5 4.5 0 11-9 0v-.75a.75.75 0 011.5 0v.75z"
+														clip-rule="evenodd"
+													/>
+												</svg>
+											</span>
+											{size.name} - ${size.price}
+										</button>
+									{/each}
+								{:else}
+									<button type="button" class="btn variant-filled">
+										<span
+											><svg
+												xmlns="http://www.w3.org/2000/svg"
+												viewBox="0 0 24 24"
+												fill="currentColor"
+												class="w-6 h-6"
+											>
+												<path
+													fill-rule="evenodd"
+													d="M7.5 6v.75H5.513c-.96 0-1.764.724-1.865 1.679l-1.263 12A1.875 1.875 0 004.25 22.5h15.5a1.875 1.875 0 001.865-2.071l-1.263-12a1.875 1.875 0 00-1.865-1.679H16.5V6a4.5 4.5 0 10-9 0zM12 3a3 3 0 00-3 3v.75h6V6a3 3 0 00-3-3zm-3 8.25a3 3 0 106 0v-.75a.75.75 0 011.5 0v.75a4.5 4.5 0 11-9 0v-.75a.75.75 0 011.5 0v.75z"
+													clip-rule="evenodd"
+												/>
+											</svg>
+										</span>
+										${item.price}
+									</button>
+								{/if}
+							</footer>
+						</div>
 					{/each}
-				{:else}
-					<button type="button" class="btn variant-filled">
-						<span
-							><svg
-								xmlns="http://www.w3.org/2000/svg"
-								viewBox="0 0 24 24"
-								fill="currentColor"
-								class="w-6 h-6"
-							>
-								<path
-									fill-rule="evenodd"
-									d="M7.5 6v.75H5.513c-.96 0-1.764.724-1.865 1.679l-1.263 12A1.875 1.875 0 004.25 22.5h15.5a1.875 1.875 0 001.865-2.071l-1.263-12a1.875 1.875 0 00-1.865-1.679H16.5V6a4.5 4.5 0 10-9 0zM12 3a3 3 0 00-3 3v.75h6V6a3 3 0 00-3-3zm-3 8.25a3 3 0 106 0v-.75a.75.75 0 011.5 0v.75a4.5 4.5 0 11-9 0v-.75a.75.75 0 011.5 0v.75z"
-									clip-rule="evenodd"
-								/>
-							</svg>
-						</span>
-						${item.price}
-					</button>
-				{/if}
-			</footer>
-		</div>
-	{/each}
-</div>
+				</div>
+		{:else if tabSet === 1}
+			<!-- Sandwich Menu Items -->
+			<div class="flex flex-col place-items-center">
+				{#each sandwichMenuItems as item}
+					<div class="card variant-glass-primary w-96 mb-4 first:mt-4">
+						<header class="card-header text-2xl font-bold">{item.name}</header>
+						<section class="p-4 text-center">
+							<img src={item.thumbnail} alt={item.name} />
+							{item.description}
+						</section>
+						<footer class="card-footer justify-right">
+							{#if item.sizes}
+								{#each item.sizes as size}
+									<button type="button" class="btn variant-filled">
+										<span
+											><svg
+												xmlns="http://www.w3.org/2000/svg"
+												viewBox="0 0 24 24"
+												fill="currentColor"
+												class="w-6 h-6"
+											>
+												<path
+													fill-rule="evenodd"
+													d="M7.5 6v.75H5.513c-.96 0-1.764.724-1.865 1.679l-1.263 12A1.875 1.875 0 004.25 22.5h15.5a1.875 1.875 0 001.865-2.071l-1.263-12a1.875 1.875 0 00-1.865-1.679H16.5V6a4.5 4.5 0 10-9 0zM12 3a3 3 0 00-3 3v.75h6V6a3 3 0 00-3-3zm-3 8.25a3 3 0 106 0v-.75a.75.75 0 011.5 0v.75a4.5 4.5 0 11-9 0v-.75a.75.75 0 011.5 0v.75z"
+													clip-rule="evenodd"
+												/>
+											</svg>
+										</span>
+										{size.name} - ${size.price}
+									</button>
+								{/each}
+							{:else}
+								<button type="button" class="btn variant-filled">
+									<span
+										><svg
+											xmlns="http://www.w3.org/2000/svg"
+											viewBox="0 0 24 24"
+											fill="currentColor"
+											class="w-6 h-6"
+										>
+											<path
+												fill-rule="evenodd"
+												d="M7.5 6v.75H5.513c-.96 0-1.764.724-1.865 1.679l-1.263 12A1.875 1.875 0 004.25 22.5h15.5a1.875 1.875 0 001.865-2.071l-1.263-12a1.875 1.875 0 00-1.865-1.679H16.5V6a4.5 4.5 0 10-9 0zM12 3a3 3 0 00-3 3v.75h6V6a3 3 0 00-3-3zm-3 8.25a3 3 0 106 0v-.75a.75.75 0 011.5 0v.75a4.5 4.5 0 11-9 0v-.75a.75.75 0 011.5 0v.75z"
+												clip-rule="evenodd"
+											/>
+										</svg>
+									</span>
+									${item.price}
+								</button>
+							{/if}
+						</footer>
+					</div>
+				{/each}
+			</div>
+		{:else if tabSet === 2}
+			<!-- Fry Menu Items -->
+			<div class="flex flex-col place-items-center">
+				{#each fryMenuItems as item}
+					<div class="card variant-glass-primary w-96 mb-4 first:mt-4">
+						<header class="card-header text-2xl font-bold">{item.name}</header>
+						<section class="p-4 text-center">
+							<img src={item.thumbnail} alt={item.name} />
+							{item.description}
+						</section>
+						<footer class="card-footer justify-right">
+							{#if item.sizes}
+								{#each item.sizes as size}
+									<button type="button" class="btn variant-filled">
+										<span
+											><svg
+												xmlns="http://www.w3.org/2000/svg"
+												viewBox="0 0 24 24"
+												fill="currentColor"
+												class="w-6 h-6"
+											>
+												<path
+													fill-rule="evenodd"
+													d="M7.5 6v.75H5.513c-.96 0-1.764.724-1.865 1.679l-1.263 12A1.875 1.875 0 004.25 22.5h15.5a1.875 1.875 0 001.865-2.071l-1.263-12a1.875 1.875 0 00-1.865-1.679H16.5V6a4.5 4.5 0 10-9 0zM12 3a3 3 0 00-3 3v.75h6V6a3 3 0 00-3-3zm-3 8.25a3 3 0 106 0v-.75a.75.75 0 011.5 0v.75a4.5 4.5 0 11-9 0v-.75a.75.75 0 011.5 0v.75z"
+													clip-rule="evenodd"
+												/>
+											</svg>
+										</span>
+										{size.name} - ${size.price}
+									</button>
+								{/each}
+							{:else}
+								<button type="button" class="btn variant-filled">
+									<span
+										><svg
+											xmlns="http://www.w3.org/2000/svg"
+											viewBox="0 0 24 24"
+											fill="currentColor"
+											class="w-6 h-6"
+										>
+											<path
+												fill-rule="evenodd"
+												d="M7.5 6v.75H5.513c-.96 0-1.764.724-1.865 1.679l-1.263 12A1.875 1.875 0 004.25 22.5h15.5a1.875 1.875 0 001.865-2.071l-1.263-12a1.875 1.875 0 00-1.865-1.679H16.5V6a4.5 4.5 0 10-9 0zM12 3a3 3 0 00-3 3v.75h6V6a3 3 0 00-3-3zm-3 8.25a3 3 0 106 0v-.75a.75.75 0 011.5 0v.75a4.5 4.5 0 11-9 0v-.75a.75.75 0 011.5 0v.75z"
+												clip-rule="evenodd"
+											/>
+										</svg>
+									</span>
+									${item.price}
+								</button>
+							{/if}
+						</footer>
+					</div>
+				{/each}
+			</div>
+		{/if}
+	</svelte:fragment>
+</TabGroup>
+			
+
 <dl class="list-dl">
 	<!-- <div> -->
 	<!-- 	<span class="badge bg-primary-500">💀</span> -->
